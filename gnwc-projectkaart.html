@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <style>
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+    }
+
+    #map {
+      height: 100%;
+    }
+
+    .name-id-tooltip {
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
+      border: 1px solid rgba(0, 0, 0, .15);
+    }
+
+    .leaflet-tooltip {
+      background: #fff;
+      color: #222;
+      border: 1px solid rgba(0, 0, 0, .25);
+    }
+
+    /* Filter legend UI */
+    .legend {
+      background: #fff;
+      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+      max-height: 45vh;
+      overflow: auto;
+      font: 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    .legend h4 {
+      margin: 0 0 6px;
+      font-size: 14px;
+    }
+
+    .legend .group {
+      margin-bottom: 10px;
+    }
+
+    .legend .row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 3px 0;
+    }
+
+    .legend .controls {
+      display: flex;
+      gap: 8px;
+      margin: 6px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .legend .controls button {
+      font-size: 12px;
+      padding: 2px 6px;
+      border: 1px solid #ddd;
+      background: #f6f6f6;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .legend .controls button:hover {
+      background: #eee;
+    }
+
+    /* === Custom stijl voor de Leaflet layer control === */
+.leaflet-control-layers {
+  background: #fff;
+  border: 2px solid #86bc25;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  color: #436026;
+}
+
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  padding: 2px 6px;
+}
+
+.leaflet-control-layers input[type="radio"],
+.leaflet-control-layers input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #86bc25;
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.leaflet-control-layers input[type="checkbox"]:checked,
+.leaflet-control-layers input[type="radio"]:checked {
+  background: #86bc25;
+  border-color: #86bc25;
+}
+
+.leaflet-control-layers input[type="checkbox"]:checked::after,
+.leaflet-control-layers input[type="radio"]:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 0px;
+  width: 4px;
+  height: 8px;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.leaflet-control-layers label:hover {
+  background: rgba(134,188,37,0.1);
+}
+
+.leaflet-control-layers-toggle {
+  background-color: #86bc25 !important;
+  background-image: none !important;
+  border-radius: 6px;
+  width: 28px;
+  height: 28px;
+}
+
+.leaflet-control-layers-toggle::after {
+  content: '≡';
+  color: #fff;
+  font-weight: bold;
+  position: relative;
+  top: 4px;
+  left: 8px;
+  font-size: 16px;
+}
+
+
+    /* Custom groene checkbox-stijl */
+    .legend input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #86bc25;
+      border-radius: 3px;
+      display: inline-block;
+      position: relative;
+      cursor: pointer;
+      background-color: #fff;
+      vertical-align: middle;
+      transition: all 0.2s ease;
+    }
+
+    .legend input[type="checkbox"]:checked {
+      background-color: #86bc25;
+      border-color: #86bc25;
+    }
+
+    .legend input[type="checkbox"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 0px;
+      width: 4px;
+      height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+
+    .map-title {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #86bc25;
+      padding: 8px 20px;
+      border-radius: 10px;
+      text-align: center;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: #436026;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+    }
+
+    .map-title h1 {
+      font-size: 25px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .map-title p {
+      font-size: 14px;
+      margin: 2px 0 0;
+      color: #e7f2cf;
+      /* iets lichtere tint voor contrast */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="map-title">
+    <h1>GNWC Projectenkaart</h1>
+    <p>Update: oktober 2025</p>
+  </div>
+
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
+
+  <script>
+    // ====== JOUW DATA-INSTELLINGEN ======
+    const GEOJSON_URL = 'data/polygons.geojson';
+    const NAME_FIELD = 'fid';
+    const ID_FIELD = 'Projectnaam';
+    const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak'];
+
+    // ====== KAART BASIS ======
+    const map = L.map('map', { preferCanvas: true });
+    const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 20, attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Containers
+    const polygonLayer = L.layerGroup().addTo(map);
+    const centroidPins = L.layerGroup().addTo(map);
+
+    // Kleurpalet (op basis van NAME_FIELD zoals in jouw versie)
+    const colorCache = {};
+    const palette = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab'];
+    function pickColor(key) {
+      if (!key) return '#4e79a7';
+      if (!colorCache[key]) colorCache[key] = palette[Object.keys(colorCache).length % palette.length];
+      return colorCache[key];
+    }
+
+    function styleFeature(feature) {
+      const name = feature.properties?.[NAME_FIELD];
+      return { color: '#333', weight: 1, fillColor: pickColor(name), fillOpacity: 0.35 };
+    }
+    function setHoverStyle(layer, isHover) {
+      layer.setStyle({ weight: isHover ? 2 : 1, fillOpacity: isHover ? 0.55 : 0.35 });
+    }
+    function buildHoverHTML(props) {
+      if (!props) return '';
+      const lines = [];
+      if (props[NAME_FIELD] !== undefined) lines.push(`<b>${NAME_FIELD}:</b> ${props[NAME_FIELD]}`);
+      if (props[ID_FIELD] !== undefined) lines.push(`<b>${ID_FIELD}:</b> ${props[ID_FIELD]}`);
+      HOVER_FIELDS.forEach(f => {
+        if (f in props && props[f] !== null && props[f] !== undefined) {
+          lines.push(`<b>${f}:</b> ${props[f]}`);
+        }
+      });
+      return lines.join('<br>');
+    }
+
+    // Index: per feature zowel polygon als marker bewaren om samen te kunnen togglen
+    const featureEntries = []; // {poly, marker, props}
+    const unique = {
+      Projecttype: new Set(),
+      Projectleider: new Set(),
+      Projectstatus: new Set()
+    };
+
+    // Huidige selectie (start: alles geselecteerd)
+    const selected = {
+      Projecttype: new Set(),
+      Projectleider: new Set(),
+      Projectstatus: new Set()
+    };
+
+    // Zichtbaarheid bijwerken op basis van selectie (AND-logica tussen de drie groepen)
+    function updateVisibility() {
+      featureEntries.forEach(({ poly, marker, props }) => {
+        const type = props.Projecttype ?? '—';
+        const leider = props.Projectleider ?? '—';
+        const status = props.Projectstatus ?? '—';
+
+        const show =
+          selected.Projecttype.has(type) &&
+          selected.Projectleider.has(leider) &&
+          selected.Projectstatus.has(status);
+
+        if (show) {
+          if (!polygonLayer.hasLayer(poly)) polygonLayer.addLayer(poly);
+          if (!centroidPins.hasLayer(marker)) centroidPins.addLayer(marker);
+        } else {
+          if (polygonLayer.hasLayer(poly)) polygonLayer.removeLayer(poly);
+          if (centroidPins.hasLayer(marker)) centroidPins.removeLayer(marker);
+        }
+      });
+    }
+
+    // Legenda (checkbox UI) bouwen
+    function buildLegendControl() {
+      const legend = L.control({ position: 'bottomright' });
+      legend.onAdd = function () {
+        const div = L.DomUtil.create('div', 'legend');
+
+        function makeSection(fieldLabel, fieldKey) {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'group';
+
+          const title = document.createElement('h4');
+          title.textContent = fieldLabel;
+          wrapper.appendChild(title);
+
+          const controls = document.createElement('div');
+          controls.className = 'controls';
+          const btnAll = document.createElement('button');
+          btnAll.type = 'button'; btnAll.textContent = 'Alles';
+          const btnNone = document.createElement('button');
+          btnNone.type = 'button'; btnNone.textContent = 'Geen';
+          controls.appendChild(btnAll); controls.appendChild(btnNone);
+          wrapper.appendChild(controls);
+
+          // Gesorteerde waarden voor stabiele UI
+          const values = Array.from(unique[fieldKey]).filter(v => v !== undefined && v !== null);
+          values.sort((a, b) => String(a).localeCompare(String(b), 'nl', { numeric: true }));
+
+          values.forEach(v => {
+            const row = document.createElement('label');
+            row.className = 'row';
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.checked = selected[fieldKey].has(v);
+            cb.dataset.field = fieldKey;
+            cb.dataset.value = v;
+            cb.addEventListener('change', onCheckboxChange);
+            const span = document.createElement('span');
+            span.textContent = v;
+            row.appendChild(cb);
+            row.appendChild(span);
+            wrapper.appendChild(row);
+          });
+
+          btnAll.onclick = () => {
+            values.forEach(v => selected[fieldKey].add(v));
+            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateVisibility();
+          };
+          btnNone.onclick = () => {
+            selected[fieldKey].clear();
+            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateVisibility();
+          };
+
+          return wrapper;
+        }
+
+        function onCheckboxChange(e) {
+          const field = e.target.dataset.field;
+          const val = e.target.dataset.value;
+          if (e.target.checked) selected[field].add(val);
+          else selected[field].delete(val);
+          updateVisibility();
+        }
+
+        div.appendChild(makeSection('Projecttype', 'Projecttype'));
+        div.appendChild(makeSection('Projectleider', 'Projectleider'));
+        div.appendChild(makeSection('Projectstatus', 'Projectstatus'));
+        return div;
+      };
+      legend.addTo(map);
+    }
+
+    // GeoJSON laden en tekenen
+    fetch(GEOJSON_URL)
+      .then(r => r.json())
+      .then(data => {
+        const gj = L.geoJSON(data, {
+          style: styleFeature,
+          onEachFeature: (feature, layer) => {
+            const props = feature.properties || {};
+
+            // Unieke waarden verzamelen
+            const type = props.Projecttype ?? '—';
+            const leider = props.Projectleider ?? '—';
+            const status = props.Projectstatus ?? '—';
+            unique.Projecttype.add(type);
+            unique.Projectleider.add(leider);
+            unique.Projectstatus.add(status);
+
+            // Hover tooltip
+            const hoverHtml = buildHoverHTML(props);
+            if (hoverHtml) layer.bindTooltip(hoverHtml, { sticky: true, direction: 'top' });
+
+            layer.on({
+              mouseover: e => setHoverStyle(e.target, true),
+              mouseout: e => setHoverStyle(e.target, false)
+            });
+
+            // Centroid pin
+            let latlng;
+            try {
+              const c = turf.centroid(feature).geometry.coordinates;
+              latlng = [c[1], c[0]];
+            } catch (e) {
+              latlng = layer.getBounds().getCenter();
+            }
+            const name = props?.[NAME_FIELD] ?? '—';
+            const id = props?.[ID_FIELD] ?? '—';
+            const greenIcon = L.divIcon({
+              className: "custom-pin",
+              html: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 20 30">
+           <path fill="#86bc25" stroke="#333" stroke-width="1"
+                 d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
+           <circle cx="10" cy="10" r="4" fill="white"/>
+         </svg>`,
+              iconAnchor: [10, 30],  // punt van de pin onderaan
+              popupAnchor: [0, -25]
+            });
+            const marker = L.marker(latlng, { icon: greenIcon });
+
+            marker.bindTooltip(`${name} · ${id}`, { permanent: true, direction: 'auto', className: 'name-id-tooltip', offset: [0, 0] });
+            marker.bindPopup(`<div>${buildHoverHTML(props)}</div>`);
+
+            // Bewaar referenties voor filteren
+            featureEntries.push({ poly: layer, marker, props });
+          }
+        });
+
+        // Start: alles tonen
+        gj.eachLayer(l => polygonLayer.addLayer(l));
+        featureEntries.forEach(({ marker }) => centroidPins.addLayer(marker));
+
+        // Fit bounds
+        map.fitBounds(gj.getBounds(), { padding: [20, 20] });
+
+        // Selecties initialiseren op "alles"
+        selected.Projecttype = new Set(unique.Projecttype);
+        selected.Projectleider = new Set(unique.Projectleider);
+        selected.Projectstatus = new Set(unique.Projectstatus);
+
+        // Legenda met checkboxes opbouwen
+        buildLegendControl();
+
+        // Optionele laag-schakelaar
+        L.control.layers(
+          { 'OpenStreetMap': osm },
+          { 'Vlakken': polygonLayer, 'Naam/ID pins': centroidPins },
+          { collapsed: false }
+        ).addTo(map);
+      })
+      .catch(err => {
+        console.error('Failed to load GeoJSON', err);
+        alert('Failed to load GeoJSON. Controleer GEOJSON_URL en de console.');
+      });
+  </script>
+</body>
+
+</html>
