@@ -78,79 +78,79 @@
     }
 
     /* === Custom stijl voor de Leaflet layer control === */
-.leaflet-control-layers {
-  background: #fff;
-  border: 2px solid #86bc25;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  color: #436026;
-}
+    .leaflet-control-layers {
+      background: #fff;
+      border: 2px solid #86bc25;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      color: #436026;
+    }
 
-.leaflet-control-layers-base label,
-.leaflet-control-layers-overlays label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 14px;
-  padding: 2px 6px;
-}
+    .leaflet-control-layers-base label,
+    .leaflet-control-layers-overlays label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      padding: 2px 6px;
+    }
 
-.leaflet-control-layers input[type="radio"],
-.leaflet-control-layers input[type="checkbox"] {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 16px;
-  height: 16px;
-  border: 2px solid #86bc25;
-  border-radius: 3px;
-  background: #fff;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.2s ease;
-}
+    .leaflet-control-layers input[type="radio"],
+    .leaflet-control-layers input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #86bc25;
+      border-radius: 3px;
+      background: #fff;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+    }
 
-.leaflet-control-layers input[type="checkbox"]:checked,
-.leaflet-control-layers input[type="radio"]:checked {
-  background: #86bc25;
-  border-color: #86bc25;
-}
+    .leaflet-control-layers input[type="checkbox"]:checked,
+    .leaflet-control-layers input[type="radio"]:checked {
+      background: #86bc25;
+      border-color: #86bc25;
+    }
 
-.leaflet-control-layers input[type="checkbox"]:checked::after,
-.leaflet-control-layers input[type="radio"]:checked::after {
-  content: '';
-  position: absolute;
-  left: 4px;
-  top: 0px;
-  width: 4px;
-  height: 8px;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-}
+    .leaflet-control-layers input[type="checkbox"]:checked::after,
+    .leaflet-control-layers input[type="radio"]:checked::after {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 0px;
+      width: 4px;
+      height: 8px;
+      border: solid #fff;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
 
-.leaflet-control-layers label:hover {
-  background: rgba(134,188,37,0.1);
-}
+    .leaflet-control-layers label:hover {
+      background: rgba(134, 188, 37, 0.1);
+    }
 
-.leaflet-control-layers-toggle {
-  background-color: #86bc25 !important;
-  background-image: none !important;
-  border-radius: 6px;
-  width: 28px;
-  height: 28px;
-}
+    .leaflet-control-layers-toggle {
+      background-color: #86bc25 !important;
+      background-image: none !important;
+      border-radius: 6px;
+      width: 28px;
+      height: 28px;
+    }
 
-.leaflet-control-layers-toggle::after {
-  content: '≡';
-  color: #fff;
-  font-weight: bold;
-  position: relative;
-  top: 4px;
-  left: 8px;
-  font-size: 16px;
-}
+    .leaflet-control-layers-toggle::after {
+      content: '≡';
+      color: #fff;
+      font-weight: bold;
+      position: relative;
+      top: 4px;
+      left: 8px;
+      font-size: 16px;
+    }
 
 
     /* Custom groene checkbox-stijl */
@@ -242,6 +242,15 @@
     const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 20, attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+
+    // Esri satellietlaag (vrij te gebruiken)
+    const esriSat = L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 20,
+        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
+      }
+    );
 
     // Containers
     const polygonLayer = L.layerGroup().addTo(map);
@@ -459,8 +468,14 @@
 
         // Optionele laag-schakelaar
         L.control.layers(
-          { 'OpenStreetMap': osm },
-          { 'Vlakken': polygonLayer, 'Naam/ID pins': centroidPins },
+          {
+            'OpenStreetMap': osm,
+            'Satelliet (Esri)': esriSat
+          },
+          {
+            'Vlakken': polygonLayer,
+            'Naam/ID pins': centroidPins
+          },
           { collapsed: false }
         ).addTo(map);
       })
