@@ -232,10 +232,10 @@
 
   <script>
     // ====== JOUW DATA-INSTELLINGEN ======
-    const GEOJSON_URL = 'data/polygons.geojson';
+const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
     const NAME_FIELD = 'fid';
     const ID_FIELD = 'Projectnaam';
-    const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak'];
+    const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak', 'Website'];
 
     // ====== KAART BASIS ======
     const map = L.map('map', { preferCanvas: true });
