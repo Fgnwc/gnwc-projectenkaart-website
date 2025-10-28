@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="nl">
-
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -8,233 +7,81 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
     integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    #map {
-      height: 100%;
-    }
+    html, body { height: 100%; margin: 0; }
+    #map { height: 100%; }
 
     .name-id-tooltip {
       font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, .15);
-      border: 1px solid rgba(0, 0, 0, .15);
+      box-shadow: 0 2px 6px rgba(0,0,0,.15);
+      border: 1px solid rgba(0,0,0,.15);
     }
-
-    .leaflet-tooltip {
-      background: #fff;
-      color: #222;
-      border: 1px solid rgba(0, 0, 0, .25);
-    }
+    .leaflet-tooltip { background:#fff; color:#222; border:1px solid rgba(0,0,0,.25); }
 
     /* Filter legend UI */
     .legend {
-      background: #fff;
-      padding: 10px 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
-      max-height: 45vh;
-      overflow: auto;
-      font: 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      background:#fff; padding:10px 12px; border-radius:8px;
+      box-shadow:0 2px 8px rgba(0,0,0,.2); max-height:45vh; overflow:auto;
+      font:14px/1.3 system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
     }
-
-    .legend h4 {
-      margin: 0 0 6px;
-      font-size: 14px;
-    }
-
-    .legend .group {
-      margin-bottom: 10px;
-    }
-
-    .legend .row {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin: 3px 0;
-    }
-
-    .legend .controls {
-      display: flex;
-      gap: 8px;
-      margin: 6px 0 8px;
-      flex-wrap: wrap;
-    }
-
+    .legend h4 { margin:0 0 6px; font-size:14px; }
+    .legend .group { margin-bottom:10px; }
+    .legend .row { display:flex; align-items:center; gap:6px; margin:3px 0; }
+    .legend .controls { display:flex; gap:8px; margin:6px 0 8px; flex-wrap:wrap; }
     .legend .controls button {
-      font-size: 12px;
-      padding: 2px 6px;
-      border: 1px solid #ddd;
-      background: #f6f6f6;
-      border-radius: 4px;
-      cursor: pointer;
+      font-size:12px; padding:2px 6px; border:1px solid #ddd; background:#f6f6f6;
+      border-radius:4px; cursor:pointer;
     }
+    .legend .controls button:hover { background:#eee; }
 
-    .legend .controls button:hover {
-      background: #eee;
-    }
-
-    /* === Custom stijl voor de Leaflet layer control === */
-    .leaflet-control-layers {
-      background: #fff;
-      border: 2px solid #86bc25;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color: #436026;
-    }
-
+    /* Leaflet layer control in jouw stijl */
+    .leaflet-control-layers { background:#fff; border:2px solid #86bc25; border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.15); font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:#436026; }
     .leaflet-control-layers-base label,
-    .leaflet-control-layers-overlays label {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 14px;
-      padding: 2px 6px;
-    }
-
+    .leaflet-control-layers-overlays label { display:flex; align-items:center; gap:6px; font-size:14px; padding:2px 6px; }
     .leaflet-control-layers input[type="radio"],
     .leaflet-control-layers input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #86bc25;
-      border-radius: 3px;
-      background: #fff;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.2s ease;
+      appearance:none; -webkit-appearance:none; -moz-appearance:none;
+      width:16px; height:16px; border:2px solid #86bc25; border-radius:3px; background:#fff; cursor:pointer; position:relative; transition:.2s;
     }
-
     .leaflet-control-layers input[type="checkbox"]:checked,
-    .leaflet-control-layers input[type="radio"]:checked {
-      background: #86bc25;
-      border-color: #86bc25;
-    }
-
+    .leaflet-control-layers input[type="radio"]:checked { background:#86bc25; border-color:#86bc25; }
     .leaflet-control-layers input[type="checkbox"]:checked::after,
     .leaflet-control-layers input[type="radio"]:checked::after {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 0px;
-      width: 4px;
-      height: 8px;
-      border: solid #fff;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
+      content:''; position:absolute; left:4px; top:0px; width:4px; height:8px;
+      border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
     }
-
-    .leaflet-control-layers label:hover {
-      background: rgba(134, 188, 37, 0.1);
-    }
-
+    .leaflet-control-layers label:hover { background:rgba(134,188,37,0.1); }
     .leaflet-control-layers-toggle {
-      background-color: #86bc25 !important;
-      background-image: none !important;
-      border-radius: 6px;
-      width: 28px;
-      height: 28px;
+      background-color:#86bc25 !important; background-image:none !important; border-radius:6px; width:28px; height:28px;
     }
+    .leaflet-control-layers-toggle::after { content:'≡'; color:#fff; font-weight:bold; position:relative; top:4px; left:8px; font-size:16px; }
 
-    .leaflet-control-layers-toggle::after {
-      content: '≡';
-      color: #fff;
-      font-weight: bold;
-      position: relative;
-      top: 4px;
-      left: 8px;
-      font-size: 16px;
+    /* Custom groene checkbox-stijl in eigen legenda */
+    .legend input[type="checkbox"]{
+      appearance:none; -webkit-appearance:none; -moz-appearance:none;
+      width:16px; height:16px; border:2px solid #86bc25; border-radius:3px; display:inline-block; position:relative;
+      cursor:pointer; background-color:#fff; vertical-align:middle; transition:.2s;
     }
-
-
-    /* Custom groene checkbox-stijl */
-    .legend input[type="checkbox"] {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      width: 16px;
-      height: 16px;
-      border: 2px solid #86bc25;
-      border-radius: 3px;
-      display: inline-block;
-      position: relative;
-      cursor: pointer;
-      background-color: #fff;
-      vertical-align: middle;
-      transition: all 0.2s ease;
+    .legend input[type="checkbox"]:checked { background-color:#86bc25; border-color:#86bc25; }
+    .legend input[type="checkbox"]:checked::after{
+      content:''; position:absolute; left:4px; top:0px; width:4px; height:8px;
+      border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg);
     }
-
-    .legend input[type="checkbox"]:checked {
-      background-color: #86bc25;
-      border-color: #86bc25;
-    }
-
-    .legend input[type="checkbox"]:checked::after {
-      content: '';
-      position: absolute;
-      left: 4px;
-      top: 0px;
-      width: 4px;
-      height: 8px;
-      border: solid #fff;
-      border-width: 0 2px 2px 0;
-      transform: rotate(45deg);
-    }
-
 
     .map-title {
-      position: absolute;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #86bc25;
-      padding: 8px 20px;
-      border-radius: 10px;
-      text-align: center;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-      color: #436026;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-      z-index: 1000;
+      position:absolute; top:10px; left:50%; transform:translateX(-50%);
+      background:#86bc25; padding:8px 20px; border-radius:10px; text-align:center;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+      color:#436026; box-shadow:0 2px 6px rgba(0,0,0,0.15); z-index:1000;
     }
-
-    .map-title h1 {
-      font-size: 25px;
-      font-weight: 700;
-      margin: 0;
-    }
-
-    .map-title p {
-      font-size: 14px;
-      margin: 2px 0 0;
-      color: #e7f2cf;
-      /* iets lichtere tint voor contrast */
-    }
+    .map-title h1 { font-size:25px; font-weight:700; margin:0; }
+    .map-title p { font-size:14px; margin:2px 0 0; color:#e7f2cf; }
 
     /* Klikbare links in tooltip en popup */
-    .leaflet-tooltip a,
-    .leaflet-popup-content a {
-      color: #1a73e8;
-      /* herkenbare linkkleur (blauw zoals Google Maps) */
-      text-decoration: underline;
-      font-weight: 500;
-    }
-
-    .leaflet-tooltip a:hover,
-    .leaflet-popup-content a:hover {
-      color: #0b59c7;
-      /* iets donkerder blauw bij hover */
-      text-decoration: none;
-      /* optioneel: geen streep bij hover */
-    }
+    .leaflet-tooltip a, .leaflet-popup-content a { color:#1a73e8; text-decoration:underline; font-weight:500; }
+    .leaflet-tooltip a:hover, .leaflet-popup-content a:hover { color:#0b59c7; text-decoration:none; }
   </style>
 </head>
-
 <body>
   <div class="map-title">
     <h1>GNWC Projectenkaart</h1>
@@ -248,13 +95,12 @@
   <script src="https://cdn.jsdelivr.net/npm/@turf/turf@6.5.0/turf.min.js"></script>
 
   <script>
-    // ====== JOUW DATA-INSTELLINGEN ======
+    // ====== DATA-INSTELLINGEN ======
     const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
     const NAME_FIELD = 'fid';
-    const ID_FIELD = 'Projectnaam';
-    const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak', 'Website'];
-    const LABEL_ZOOM = 20; // vanaf dit zoomniveau verschijnen naam/ID-labels
-
+    const ID_FIELD   = 'Projectnaam';
+    const HOVER_FIELDS = ['Beschrijving','Projecttype','Projectstatus','Projectleider','Einddatum contract','Oppervlak','Website'];
+    const LABEL_ZOOM = 20; // vanaf dit zoomniveau verschijnen marker-naamlabels
 
     // ====== KAART BASIS ======
     const map = L.map('map', { preferCanvas: true });
@@ -262,323 +108,305 @@
       maxZoom: 20, attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Esri satellietlaag (vrij te gebruiken)
+    // Pane voor 'Wijkaanpak' (lager dan standaard overlay ~400)
+    const wijkaanpakPane = map.createPane('wijkaanpak');
+    wijkaanpakPane.style.zIndex = 350;
+    wijkaanpakPane.style.pointerEvents = 'auto';
+
+    // Esri satelliet
     const esriSat = L.tileLayer(
       'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      {
-        maxZoom: 20,
-        attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics'
-      }
+      { maxZoom: 20, attribution: 'Tiles © Esri — Source: Esri, Maxar, Earthstar Geographics' }
     );
 
     // Containers
     const polygonLayer = L.layerGroup().addTo(map);
     const centroidPins = L.layerGroup().addTo(map);
 
-    // Kleurpalet (op basis van NAME_FIELD zoals in jouw versie)
+    // Kleurpalet
     const colorCache = {};
-    const palette = ['#4e79a7', '#f28e2b', '#e15759', '#76b7b2', '#59a14f', '#edc949', '#af7aa1', '#ff9da7', '#9c755f', '#bab0ab'];
-    function pickColor(key) {
+    const palette = ['#4e79a7','#f28e2b','#e15759','#76b7b2','#59a14f','#edc949','#af7aa1','#ff9da7','#9c755f','#bab0ab'];
+    function pickColor(key){
       if (!key) return '#4e79a7';
       if (!colorCache[key]) colorCache[key] = palette[Object.keys(colorCache).length % palette.length];
       return colorCache[key];
     }
 
-    function styleFeature(feature) {
+    function styleFeature(feature){
       const name = feature.properties?.[NAME_FIELD];
-      return { color: '#333', weight: 1, fillColor: pickColor(name), fillOpacity: 0.35 };
+      return { color:'#333', weight:1, fillColor:pickColor(name), fillOpacity:0.35 };
     }
-    function setHoverStyle(layer, isHover) {
+    // Dikke gestreepte (stippel) outline, geen vulling, speciaal voor Wijkaanpak
+function styleWijkaanpak(feature) {
+  return {
+    pane: 'wijkaanpak',   // blijft in het lagere pane
+    color: '#436026',     // outline-kleur (huisstijl)
+    weight: 4,            // dikke rand
+    dashArray: '8 6',     // streep:spatie
+    fill: false,          // geen vulling
+    fillOpacity: 0,
+    opacity: 1
+  };
+}
+
+    function setHoverStyle(layer, isHover){
       layer.setStyle({ weight: isHover ? 2 : 1, fillOpacity: isHover ? 0.55 : 0.35 });
     }
-    function buildHoverHTML(props) {
+
+    // Tooltip/Popup HTML
+    function buildHoverHTML(props){
       if (!props) return '';
       const lines = [];
-
-      if (props[NAME_FIELD] !== undefined)
-        lines.push(`<b>${NAME_FIELD}:</b> ${props[NAME_FIELD]}`);
-
-      if (props[ID_FIELD] !== undefined)
-        lines.push(`<b>${ID_FIELD}:</b> ${props[ID_FIELD]}`);
-
-      HOVER_FIELDS.forEach(f => {
-        if (f in props && props[f] !== null && props[f] !== undefined) {
+      if (props[NAME_FIELD] !== undefined) lines.push(`<b>${NAME_FIELD}:</b> ${props[NAME_FIELD]}`);
+      if (props[ID_FIELD]   !== undefined) lines.push(`<b>${ID_FIELD}:</b> ${props[ID_FIELD]}`);
+      HOVER_FIELDS.forEach(f=>{
+        if (f in props && props[f] != null){
           let value = props[f];
-
-          // Maak de Website-waarde klikbaar als het veld "Website" heet
-          if (f.toLowerCase() === 'website') {
+          if (f.toLowerCase() === 'website'){
             const url = String(value).trim();
-            // Voeg "https://" toe als het er nog niet staat
             const fullUrl = url.startsWith('http') ? url : `https://${url}`;
             value = `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
           }
-
           lines.push(`<b>${f}:</b> ${value}`);
         }
       });
-
       return lines.join('<br>');
     }
 
-
-    // Index: per feature zowel polygon als marker bewaren om samen te kunnen togglen
+    // Index & unieke waarden
     const featureEntries = []; // {poly, marker, props}
-    const unique = {
-      Projecttype: new Set(),
-      Projectleider: new Set(),
-      Projectstatus: new Set()
-    };
+    const unique = { Projecttype:new Set(), Projectleider:new Set(), Projectstatus:new Set() };
+    const selected = { Projecttype:new Set(), Projectleider:new Set(), Projectstatus:new Set() };
 
-    // Huidige selectie (start: alles geselecteerd)
-    const selected = {
-      Projecttype: new Set(),
-      Projectleider: new Set(),
-      Projectstatus: new Set()
-    };
+    // Hulpfunctie voor robuuste detectie Wijkaanpak
+    function isWijkaanpakFeature(f){
+      const v = String(f.properties?.Projecttype ?? '').trim().toLowerCase();
+      return v === 'wijkaanpak';
+    }
 
-    // Zichtbaarheid bijwerken op basis van selectie (AND-logica tussen de drie groepen)
-    function updateVisibility() {
-      featureEntries.forEach(({ poly, marker, props }) => {
-        const type = props.Projecttype ?? '—';
+    // Filter-gedreven zichtbaarheid
+    function updateVisibility(){
+      featureEntries.forEach(({ poly, marker, props })=>{
+        const type   = props.Projecttype   ?? '—';
         const leider = props.Projectleider ?? '—';
         const status = props.Projectstatus ?? '—';
+        const show = selected.Projecttype.has(type) && selected.Projectleider.has(leider) && selected.Projectstatus.has(status);
 
-        const show =
-          selected.Projecttype.has(type) &&
-          selected.Projectleider.has(leider) &&
-          selected.Projectstatus.has(status);
-
-        if (show) {
-          if (!polygonLayer.hasLayer(poly)) polygonLayer.addLayer(poly);
-          if (!centroidPins.hasLayer(marker)) centroidPins.addLayer(marker);
+        if (show){
+          if (!map.hasLayer(poly))    poly.addTo(polygonLayer);
+          if (!map.hasLayer(marker))  centroidPins.addLayer(marker);
         } else {
-          if (polygonLayer.hasLayer(poly)) polygonLayer.removeLayer(poly);
-          if (centroidPins.hasLayer(marker)) centroidPins.removeLayer(marker);
+          if (map.hasLayer(poly))     polygonLayer.removeLayer(poly);
+          if (map.hasLayer(marker))   centroidPins.removeLayer(marker);
         }
       });
     }
 
-    // toggling-functie
-    function updateMarkerLabels() {
+    // Zoom-gestuurde markerlabels
+    function updateMarkerLabels(){
       const show = map.getZoom() >= LABEL_ZOOM;
-      featureEntries.forEach(({ marker }) => {
-        if (show) marker.openTooltip();
-        else marker.closeTooltip();
+      featureEntries.forEach(({ marker })=>{
+        if (show) marker.openTooltip(); else marker.closeTooltip();
       });
     }
 
+    // Legenda (checkbox UI)
+    function buildLegendControl(){
+      const legend = L.control({ position:'bottomright' });
+      legend.onAdd = function(){
+        const div = L.DomUtil.create('div','legend');
 
-    // Legenda (checkbox UI) bouwen
-    function buildLegendControl() {
-      const legend = L.control({ position: 'bottomright' });
-      legend.onAdd = function () {
-        const div = L.DomUtil.create('div', 'legend');
+        function onCheckboxChange(e){
+          const field = e.target.dataset.field;
+          const val   = e.target.dataset.value;
+          if (e.target.checked) selected[field].add(val);
+          else                  selected[field].delete(val);
+          updateVisibility();
+        }
 
-        function makeSection(fieldLabel, fieldKey) {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'group';
+        function makeSection(fieldLabel, fieldKey){
+          const wrapper = document.createElement('div'); wrapper.className='group';
+          const title = document.createElement('h4'); title.textContent = fieldLabel; wrapper.appendChild(title);
 
-          const title = document.createElement('h4');
-          title.textContent = fieldLabel;
-          wrapper.appendChild(title);
+          const controls = document.createElement('div'); controls.className='controls';
+          const btnAll  = document.createElement('button'); btnAll.type='button';  btnAll.textContent='Alles';
+          const btnNone = document.createElement('button'); btnNone.type='button'; btnNone.textContent='Geen';
+          controls.appendChild(btnAll); controls.appendChild(btnNone); wrapper.appendChild(controls);
 
-          const controls = document.createElement('div');
-          controls.className = 'controls';
-          const btnAll = document.createElement('button');
-          btnAll.type = 'button'; btnAll.textContent = 'Alles';
-          const btnNone = document.createElement('button');
-          btnNone.type = 'button'; btnNone.textContent = 'Geen';
-          controls.appendChild(btnAll); controls.appendChild(btnNone);
-          wrapper.appendChild(controls);
-
-          // Gesorteerde waarden voor stabiele UI
           const values = Array.from(unique[fieldKey]).filter(v => v !== undefined && v !== null);
-          values.sort((a, b) => String(a).localeCompare(String(b), 'nl', { numeric: true }));
+          values.sort((a,b)=> String(a).localeCompare(String(b),'nl',{numeric:true}));
 
-          values.forEach(v => {
-            const row = document.createElement('label');
-            row.className = 'row';
-            const cb = document.createElement('input');
-            cb.type = 'checkbox';
+          values.forEach(v=>{
+            const row = document.createElement('label'); row.className='row';
+            const cb  = document.createElement('input'); cb.type='checkbox';
             cb.checked = selected[fieldKey].has(v);
-            cb.dataset.field = fieldKey;
-            cb.dataset.value = v;
+            cb.dataset.field = fieldKey; cb.dataset.value = v;
             cb.addEventListener('change', onCheckboxChange);
-            const span = document.createElement('span');
-            span.textContent = v;
-            row.appendChild(cb);
-            row.appendChild(span);
-            wrapper.appendChild(row);
+            const span = document.createElement('span'); span.textContent = v;
+            row.appendChild(cb); row.appendChild(span); wrapper.appendChild(row);
           });
 
-          btnAll.onclick = () => {
-            values.forEach(v => selected[fieldKey].add(v));
-            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+          btnAll.onclick = ()=>{
+            values.forEach(v=> selected[fieldKey].add(v));
+            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked = true);
             updateVisibility();
           };
-          btnNone.onclick = () => {
+          btnNone.onclick = ()=>{
             selected[fieldKey].clear();
-            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            wrapper.querySelectorAll('input[type="checkbox"]').forEach(cb=> cb.checked = false);
             updateVisibility();
           };
 
           return wrapper;
         }
 
-        function onCheckboxChange(e) {
-          const field = e.target.dataset.field;
-          const val = e.target.dataset.value;
-          if (e.target.checked) selected[field].add(val);
-          else selected[field].delete(val);
-          updateVisibility();
-        }
-
-        div.appendChild(makeSection('Projecttype', 'Projecttype'));
-        div.appendChild(makeSection('Projectleider', 'Projectleider'));
-        div.appendChild(makeSection('Projectstatus', 'Projectstatus'));
+        div.appendChild(makeSection('Projecttype','Projecttype'));
+        div.appendChild(makeSection('Projectleider','Projectleider'));
+        div.appendChild(makeSection('Projectstatus','Projectstatus'));
         return div;
       };
       legend.addTo(map);
     }
 
-    // GeoJSON laden en tekenen
+    // ====== DATA LADEN ======
     fetch(GEOJSON_URL)
-      .then(r => r.json())
-      .then(data => {
-        const gj = L.geoJSON(data, {
-          style: styleFeature,
-          onEachFeature: (feature, layer) => {
+      .then(r=>r.json())
+      .then(data=>{
+        // 1) Wijkaanpak (onder)
+        const gjWijkaanpak = L.geoJSON(data, {
+          filter: isWijkaanpakFeature,
+          pane: 'wijkaanpak',
+          interactive: true,
+          style: styleWijkaanpak,
+          onEachFeature: (feature, layer)=>{
             const props = feature.properties || {};
-
-            // Unieke waarden verzamelen
-            const type = props.Projecttype ?? '—';
+            const type   = props.Projecttype   ?? '—';
             const leider = props.Projectleider ?? '—';
             const status = props.Projectstatus ?? '—';
-            unique.Projecttype.add(type);
-            unique.Projectleider.add(leider);
-            unique.Projectstatus.add(status);
+            unique.Projecttype.add(type); unique.Projectleider.add(leider); unique.Projectstatus.add(status);
 
-            // Hover tooltip
             const hoverHtml = buildHoverHTML(props);
-
-            // 1) Hover-INFO: tooltip blijft meebewegen met je muis
-            if (hoverHtml) {
-              layer.bindTooltip(hoverHtml, {
-                sticky: true,
-                direction: 'top',
-                interactive: true   // maakt links in tooltip klikbaar als je ‘m stil zet
-              });
-            }
-
-            // 2) Klik-INFO: popup staat vast op de klikplek (klikbaar)
-            layer.bindPopup(`<div>${hoverHtml}</div>`, {
-              autoPan: true,
-              closeButton: true,
-              maxWidth: 320
-            });
-
-            // 3) Hoverstijl + klikgedrag:
-            // - bij mouseover/out alleen stijl aanpassen
-            // - bij klik: tooltip sluiten en popup vast openen op kliklocatie
-            layer.on({
-              mouseover: e => setHoverStyle(e.target, true),
-              mouseout: e => setHoverStyle(e.target, false),
-              click: e => {
-                layer.closeTooltip();
-                layer.openPopup(e.latlng);
-              }
-            });
-
+            if (hoverHtml) layer.bindTooltip(hoverHtml, { sticky:true, direction:'top', interactive:true });
 
             layer.on({
               mouseover: e => setHoverStyle(e.target, true),
-              mouseout: e => setHoverStyle(e.target, false)
+              mouseout:  e => setHoverStyle(e.target, false),
+              click:     e => { layer.closeTooltip(); layer.openPopup(e.latlng); }
             });
+            layer.bindPopup(`<div>${hoverHtml}</div>`, { autoPan:true, closeButton:true, maxWidth:320 });
 
-            // Centroid pin
+            // Marker met fid in de pin
             let latlng;
-            try {
-              const c = turf.centroid(feature).geometry.coordinates;
-              latlng = [c[1], c[0]];
-            } catch (e) {
-              latlng = layer.getBounds().getCenter();
-            }
+            try { const c = turf.centroid(feature).geometry.coordinates; latlng = [c[1], c[0]]; }
+            catch(e){ latlng = layer.getBounds().getCenter(); }
+
             const name = props?.[NAME_FIELD] ?? '—';
-            const id = props?.[ID_FIELD] ?? '—';
-            const fidValue = props?.[NAME_FIELD] ?? ''; // haal projectnummer op (fid)
+            const id   = props?.[ID_FIELD]   ?? '—';
+            const fidValue = props?.[NAME_FIELD] ?? '';
 
             const greenIcon = L.divIcon({
-              className: "custom-pin",
+              className:"custom-pin",
               html: `
-    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="32" viewBox="0 0 20 30">
-      <path fill="#86bc25" stroke="#333" stroke-width="1"
-        d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
-      <!-- witte cirkel achtergrond -->
-      <circle cx="10" cy="10" r="8" fill="white"/>
-      <!-- tekst in het midden (fid) -->
-      <text x="10" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="#436026">${fidValue}</text>
-    </svg>
-  `,
-              iconAnchor: [10, 30],
-              popupAnchor: [0, -25]
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="32" viewBox="0 0 20 30">
+                  <path fill="#86bc25" stroke="#333" stroke-width="1"
+                        d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
+                  <circle cx="10" cy="10" r="7" fill="white"/>
+                  <text x="10" y="13" text-anchor="middle" font-size="8" font-weight="700" fill="#436026">${fidValue}</text>
+                </svg>`,
+              iconAnchor:[10,26], popupAnchor:[0,-22]
             });
-
             const marker = L.marker(latlng, { icon: greenIcon });
-
-
-            marker.bindTooltip(`${id}`, {
-              permanent: false,       // <-- niet permanent; we sturen open/close zelf aan
-              direction: 'auto',
-              className: 'name-id-tooltip',
-              offset: [0, 0]
-            });
-
+            marker.bindTooltip(`${id}`, { permanent:false, direction:'auto', className:'name-id-tooltip', offset:[0,0] });
             marker.bindPopup(`<div>${buildHoverHTML(props)}</div>`);
-
-            // Bewaar referenties voor filteren
             featureEntries.push({ poly: layer, marker, props });
           }
         });
 
-        // Start: alles tonen
-        gj.eachLayer(l => polygonLayer.addLayer(l));
-        featureEntries.forEach(({ marker }) => centroidPins.addLayer(marker));
+        // 2) Overig (erboven)
+        const gjOverig = L.geoJSON(data, {
+          filter: f => !isWijkaanpakFeature(f),
+          style: styleFeature,
+          onEachFeature: (feature, layer)=>{
+            const props = feature.properties || {};
+            const type   = props.Projecttype   ?? '—';
+            const leider = props.Projectleider ?? '—';
+            const status = props.Projectstatus ?? '—';
+            unique.Projecttype.add(type); unique.Projectleider.add(leider); unique.Projectstatus.add(status);
 
-        // Fit bounds
-        map.fitBounds(gj.getBounds(), { padding: [20, 20] });
+            const hoverHtml = buildHoverHTML(props);
+            if (hoverHtml) layer.bindTooltip(hoverHtml, { sticky:true, direction:'top', interactive:true });
+
+            layer.on({
+              mouseover: e => setHoverStyle(e.target, true),
+              mouseout:  e => setHoverStyle(e.target, false),
+              click:     e => { layer.closeTooltip(); layer.openPopup(e.latlng); }
+            });
+            layer.bindPopup(`<div>${hoverHtml}</div>`, { autoPan:true, closeButton:true, maxWidth:320 });
+
+            let latlng;
+            try { const c = turf.centroid(feature).geometry.coordinates; latlng = [c[1], c[0]]; }
+            catch(e){ latlng = layer.getBounds().getCenter(); }
+
+            const name = props?.[NAME_FIELD] ?? '—';
+            const id   = props?.[ID_FIELD]   ?? '—';
+            const fidValue = props?.[NAME_FIELD] ?? '';
+
+            const greenIcon = L.divIcon({
+              className:"custom-pin",
+              html: `
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="32" viewBox="0 0 20 30">
+                  <path fill="#86bc25" stroke="#333" stroke-width="1"
+                        d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
+                  <circle cx="10" cy="10" r="7" fill="white"/>
+                  <text x="10" y="13" text-anchor="middle" font-size="8" font-weight="700" fill="#436026">${fidValue}</text>
+                </svg>`,
+              iconAnchor:[10,26], popupAnchor:[0,-22]
+            });
+            const marker = L.marker(latlng, { icon: greenIcon });
+            marker.bindTooltip(`${id}`, { permanent:false, direction:'auto', className:'name-id-tooltip', offset:[0,0] });
+            marker.bindPopup(`<div>${buildHoverHTML(props)}</div>`);
+            featureEntries.push({ poly: layer, marker, props });
+          }
+        });
+
+        // Lagen toevoegen: eerst Wijkaanpak (onder), dan Overig (erboven)
+        gjWijkaanpak.addTo(polygonLayer);
+        gjOverig.addTo(polygonLayer);
+        gjWijkaanpak.bringToBack();
+
+        // Fit bounds op beide lagen
+        const allBounds = gjOverig.getBounds().extend(gjWijkaanpak.getBounds());
+        map.fitBounds(allBounds, { padding:[20,20] });
 
         // Selecties initialiseren op "alles"
-        selected.Projecttype = new Set(unique.Projecttype);
+        selected.Projecttype   = new Set(unique.Projecttype);
         selected.Projectleider = new Set(unique.Projectleider);
         selected.Projectstatus = new Set(unique.Projectstatus);
 
-        // Legenda met checkboxes opbouwen
+        // Legenda
         buildLegendControl();
 
-        // Labels eenmalig in juiste beginstand zetten
+        // Pins op de kaart + filters en labels direct syncen
+        featureEntries.forEach(({ marker }) => centroidPins.addLayer(marker));
+        updateVisibility();
         updateMarkerLabels();
-
-        // En bij iedere zoomwijziging vernieuwen
         map.on('zoomend', updateMarkerLabels);
 
-        // Optionele laag-schakelaar
+        // Basemap/overlays switch
         L.control.layers(
-          {
-            'OpenStreetMap': osm,
-            'Satelliet (Esri)': esriSat
-          },
-          {
-            'Vlakken': polygonLayer,
-            'Naam/ID pins': centroidPins
-          },
-          { collapsed: false }
+          { 'OpenStreetMap': osm, 'Satelliet (Esri)': esriSat },
+          { 'Vlakken': polygonLayer, 'Naam/ID pins': centroidPins },
+          { collapsed:false }
         ).addTo(map);
+
+        // Debug (optioneel): aantallen controleren
+        // console.log('Wijkaanpak features:', gjWijkaanpak.getLayers().length);
+        // console.log('Overig features:', gjOverig.getLayers().length);
       })
-      .catch(err => {
+      .catch(err=>{
         console.error('Failed to load GeoJSON', err);
         alert('Failed to load GeoJSON. Controleer GEOJSON_URL en de console.');
       });
   </script>
 </body>
-
 </html>
