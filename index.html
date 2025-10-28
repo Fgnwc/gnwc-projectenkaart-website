@@ -253,6 +253,8 @@
     const NAME_FIELD = 'fid';
     const ID_FIELD = 'Projectnaam';
     const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak', 'Website'];
+    const LABEL_ZOOM = 20; // vanaf dit zoomniveau verschijnen naam/ID-labels
+
 
     // ====== KAART BASIS ======
     const map = L.map('map', { preferCanvas: true });
@@ -355,6 +357,16 @@
         }
       });
     }
+
+    // toggling-functie
+    function updateMarkerLabels() {
+      const show = map.getZoom() >= LABEL_ZOOM;
+      featureEntries.forEach(({ marker }) => {
+        if (show) marker.openTooltip();
+        else marker.closeTooltip();
+      });
+    }
+
 
     // Legenda (checkbox UI) bouwen
     function buildLegendControl() {
@@ -493,19 +505,34 @@
             }
             const name = props?.[NAME_FIELD] ?? '—';
             const id = props?.[ID_FIELD] ?? '—';
+            const fidValue = props?.[NAME_FIELD] ?? ''; // haal projectnummer op (fid)
+
             const greenIcon = L.divIcon({
               className: "custom-pin",
-              html: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 20 30">
-           <path fill="#86bc25" stroke="#333" stroke-width="1"
-                 d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
-           <circle cx="10" cy="10" r="4" fill="white"/>
-         </svg>`,
-              iconAnchor: [10, 30],  // punt van de pin onderaan
+              html: `
+    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="32" viewBox="0 0 20 30">
+      <path fill="#86bc25" stroke="#333" stroke-width="1"
+        d="M10 0C4.5 0 0 4.5 0 10c0 7.5 10 20 10 20s10-12.5 10-20C20 4.5 15.5 0 10 0z"/>
+      <!-- witte cirkel achtergrond -->
+      <circle cx="10" cy="10" r="8" fill="white"/>
+      <!-- tekst in het midden (fid) -->
+      <text x="10" y="13" text-anchor="middle" font-size="9" font-weight="700" fill="#436026">${fidValue}</text>
+    </svg>
+  `,
+              iconAnchor: [10, 30],
               popupAnchor: [0, -25]
             });
+
             const marker = L.marker(latlng, { icon: greenIcon });
 
-            marker.bindTooltip(`${name} · ${id}`, { permanent: true, direction: 'auto', className: 'name-id-tooltip', offset: [0, 0] });
+
+            marker.bindTooltip(`${id}`, {
+              permanent: false,       // <-- niet permanent; we sturen open/close zelf aan
+              direction: 'auto',
+              className: 'name-id-tooltip',
+              offset: [0, 0]
+            });
+
             marker.bindPopup(`<div>${buildHoverHTML(props)}</div>`);
 
             // Bewaar referenties voor filteren
@@ -527,6 +554,12 @@
 
         // Legenda met checkboxes opbouwen
         buildLegendControl();
+
+        // Labels eenmalig in juiste beginstand zetten
+        updateMarkerLabels();
+
+        // En bij iedere zoomwijziging vernieuwen
+        map.on('zoomend', updateMarkerLabels);
 
         // Optionele laag-schakelaar
         L.control.layers(
