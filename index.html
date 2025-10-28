@@ -215,6 +215,23 @@
       color: #e7f2cf;
       /* iets lichtere tint voor contrast */
     }
+
+    /* Klikbare links in tooltip en popup */
+    .leaflet-tooltip a,
+    .leaflet-popup-content a {
+      color: #1a73e8;
+      /* herkenbare linkkleur (blauw zoals Google Maps) */
+      text-decoration: underline;
+      font-weight: 500;
+    }
+
+    .leaflet-tooltip a:hover,
+    .leaflet-popup-content a:hover {
+      color: #0b59c7;
+      /* iets donkerder blauw bij hover */
+      text-decoration: none;
+      /* optioneel: geen streep bij hover */
+    }
   </style>
 </head>
 
@@ -232,7 +249,7 @@
 
   <script>
     // ====== JOUW DATA-INSTELLINGEN ======
-const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
+    const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
     const NAME_FIELD = 'fid';
     const ID_FIELD = 'Projectnaam';
     const HOVER_FIELDS = ['Beschrijving', 'Projecttype', 'Projectstatus', 'Projectleider', 'Einddatum contract', 'Oppervlak', 'Website'];
@@ -275,15 +292,32 @@ const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
     function buildHoverHTML(props) {
       if (!props) return '';
       const lines = [];
-      if (props[NAME_FIELD] !== undefined) lines.push(`<b>${NAME_FIELD}:</b> ${props[NAME_FIELD]}`);
-      if (props[ID_FIELD] !== undefined) lines.push(`<b>${ID_FIELD}:</b> ${props[ID_FIELD]}`);
+
+      if (props[NAME_FIELD] !== undefined)
+        lines.push(`<b>${NAME_FIELD}:</b> ${props[NAME_FIELD]}`);
+
+      if (props[ID_FIELD] !== undefined)
+        lines.push(`<b>${ID_FIELD}:</b> ${props[ID_FIELD]}`);
+
       HOVER_FIELDS.forEach(f => {
         if (f in props && props[f] !== null && props[f] !== undefined) {
-          lines.push(`<b>${f}:</b> ${props[f]}`);
+          let value = props[f];
+
+          // Maak de Website-waarde klikbaar als het veld "Website" heet
+          if (f.toLowerCase() === 'website') {
+            const url = String(value).trim();
+            // Voeg "https://" toe als het er nog niet staat
+            const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+            value = `<a href="${fullUrl}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+          }
+
+          lines.push(`<b>${f}:</b> ${value}`);
         }
       });
+
       return lines.join('<br>');
     }
+
 
     // Index: per feature zowel polygon als marker bewaren om samen te kunnen togglen
     const featureEntries = []; // {poly, marker, props}
@@ -414,7 +448,35 @@ const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now();
 
             // Hover tooltip
             const hoverHtml = buildHoverHTML(props);
-            if (hoverHtml) layer.bindTooltip(hoverHtml, { sticky: true, direction: 'top' });
+
+            // 1) Hover-INFO: tooltip blijft meebewegen met je muis
+            if (hoverHtml) {
+              layer.bindTooltip(hoverHtml, {
+                sticky: true,
+                direction: 'top',
+                interactive: true   // maakt links in tooltip klikbaar als je ‘m stil zet
+              });
+            }
+
+            // 2) Klik-INFO: popup staat vast op de klikplek (klikbaar)
+            layer.bindPopup(`<div>${hoverHtml}</div>`, {
+              autoPan: true,
+              closeButton: true,
+              maxWidth: 320
+            });
+
+            // 3) Hoverstijl + klikgedrag:
+            // - bij mouseover/out alleen stijl aanpassen
+            // - bij klik: tooltip sluiten en popup vast openen op kliklocatie
+            layer.on({
+              mouseover: e => setHoverStyle(e.target, true),
+              mouseout: e => setHoverStyle(e.target, false),
+              click: e => {
+                layer.closeTooltip();
+                layer.openPopup(e.latlng);
+              }
+            });
+
 
             layer.on({
               mouseover: e => setHoverStyle(e.target, true),
