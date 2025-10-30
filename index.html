@@ -12,26 +12,29 @@
 
   <style>
     /* =============== Base layout =============== */
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
 
-    #map {
-      height: 100%;
-    }
 
-    /* Boven- en onderrand in huisstijlkleuren */
-body {
+    /* Boven- en onderrand in huisstijlkleuren zonder scrollbalk */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box; /* voorkomt scroll door borders */
   border-top: 5px solid #86bc25;   /* groen */
   border-bottom: 10px solid #b3cbd9; /* blauwgrijs */
+  overflow: hidden; /* extra zekerheid: geen scrollbalken */
 }
+
+#map {
+  height: 100%;
+  width: 100%;
+}
+
 
     /* =============== Title badge (top center) =============== */
     .map-title {
       position: absolute;
-      top: 10px;
+      top: 0px;
       left: 50%;
       transform: translateX(-50%);
       background: #86bc25;
