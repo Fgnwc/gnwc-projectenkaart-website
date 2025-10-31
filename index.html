@@ -15,20 +15,25 @@
 
 
     /* Boven- en onderrand in huisstijlkleuren zonder scrollbalk */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box; /* voorkomt scroll door borders */
-  border-top: 5px solid #86bc25;   /* groen */
-  border-bottom: 10px solid #b3cbd9; /* blauwgrijs */
-  overflow: hidden; /* extra zekerheid: geen scrollbalken */
-}
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      /* voorkomt scroll door borders */
+      border-top: 5px solid #86bc25;
+      /* groen */
+      border-bottom: 10px solid #b3cbd9;
+      /* blauwgrijs */
+      overflow: hidden;
+      /* extra zekerheid: geen scrollbalken */
+    }
 
-#map {
-  height: 100%;
-  width: 100%;
-}
+    #map {
+      height: 100%;
+      width: 100%;
+    }
 
 
     /* =============== Title badge (top center) =============== */
@@ -320,7 +325,9 @@ html, body {
 
   <script>
     // =============== Config ===============
-    const GEOJSON_URL = 'data/polygons.geojson?v=' + Date.now(); // cache-bust
+// Gebruik jsDelivr CDN voor betrouwbare toegang (ook met CORS)
+const GEOJSON_URL = 'https://cdn.jsdelivr.net/gh/Fgnwc/gnwc-geojson@main/polygons.geojson?v=' + Date.now();
+
     const NAME_FIELD = 'fid';           // number shown inside marker
     const ID_FIELD = 'Projectnaam';   // title in tooltip/popup
     const LABEL_ZOOM = 20;              // show marker text when zoomed in
